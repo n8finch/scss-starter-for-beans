@@ -3,6 +3,21 @@
  * $ npm install gulp-ruby-sass gulp-autoprefixer gulp-cssnano gulp-jshint gulp-concat gulp-uglify gulp-imagemin gulp-notify gulp-rename gulp-livereload gulp-cache del --save-dev
  */
 
+ // browser-sync watched files
+ // automatically reloads the page when files changed
+ var browserSyncWatchFiles = [
+   './css/*.min.css',
+   './js/*.min.js',
+   './*.php'
+ ];
+
+ // browser-sync options
+ // see: https://www.browsersync.io/docs/options/
+ var browserSyncOptions = {
+   proxy: "hbsnj.test",
+   notify: true
+ };
+
 // Load plugins
 var gulp = require('gulp'),
   sass = require('gulp-sass'),
@@ -25,20 +40,7 @@ var config = {
 };
 
 
-// browser-sync watched files
-// automatically reloads the page when files changed
-var browserSyncWatchFiles = [
-  './css/*.min.css',
-  './js/*.min.js',
-  './*.php'
-];
 
-// browser-sync options
-// see: https://www.browsersync.io/docs/options/
-var browserSyncOptions = {
-  proxy: "hbsnj.test",
-  notify: true
-};
 
 // Styles
 // gulp.task('styles', function() {
@@ -61,6 +63,7 @@ gulp.task('styles', function() {
     .pipe(autoprefixer('last 2 version'))
     .pipe(sourcemaps.write(''))
     .pipe(gulp.dest(''))
+	.pipe(browserSync.stream())
     // .pipe(rename({ suffix: '.min' }))
     // .pipe(cssnano())
     // .pipe(gulp.dest(''))
@@ -75,6 +78,7 @@ gulp.task('scripts', function() {
     .pipe(rename({ suffix: '.min' }))
     .pipe(uglify())
     .pipe(gulp.dest(''))
+	.pipe(browserSync.stream())
     .pipe(notify({ message: 'Scripts task complete' }));
 });
 
@@ -103,7 +107,7 @@ gulp.task('browser-sync', function() {
 // Run:
 // gulp watch-bs
 // Starts watcher with browser-sync. Browser-sync reloads page automatically on your browser
-gulp.task('watch-bs', ['browser-sync', 'watch', 'scripts'], function () { });
+gulp.task('watch-bs', ['browser-sync', 'scripts', 'styles', 'watch',], function () { });
 
 
 // Default task
@@ -122,9 +126,6 @@ gulp.task('watch', function() {
 
   // Watch image files
   gulp.watch('src/images/**/*', ['images']);
-
-  // Create LiveReload server
-  livereload.listen();
 
   // Watch any files in dist/, reload on change
   // gulp.watch(['dist/**']).on('change', livereload.changed);
