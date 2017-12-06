@@ -22,6 +22,6 @@ function beans_child_enqueue_assets() {
 
 	wp_enqueue_style( 'child-style', get_stylesheet_directory_uri() . '/style.css' );
 
-	wp_enqueue_script( 'main-js', get_stylesheet_directory_uri() . '/main.min.js', array( 'jquery' ), date("ymd-Gis"), true  );
+	wp_enqueue_script( 'main-js', get_stylesheet_directory_uri() . '/js/main.min.js', array( 'jquery' ), date("ymd-Gis"), true  );
 
 }
