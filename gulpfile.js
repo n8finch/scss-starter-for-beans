@@ -74,10 +74,10 @@ gulp.task('styles', function() {
 gulp.task('scripts', function() {
   return gulp.src(['assets/js/custom.js'])
     .pipe(concat('main.js'))
-    .pipe(gulp.dest(''))
+    .pipe(gulp.dest('assets/js/'))
     .pipe(rename({ suffix: '.min' }))
     .pipe(uglify())
-    .pipe(gulp.dest(''))
+    .pipe(gulp.dest('assets/js/'))
 	.pipe(browserSync.stream())
     .pipe(notify({ message: 'Scripts task complete' }));
 });
