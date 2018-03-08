@@ -1,133 +1,64 @@
-/*!
- * gulp
- * $ npm install gulp-ruby-sass gulp-autoprefixer gulp-cssnano gulp-jshint gulp-concat gulp-uglify gulp-imagemin gulp-notify gulp-rename gulp-livereload gulp-cache del --save-dev
- */
+// Dependencies
+var gulp = require('gulp');
+var sass = require('gulp-sass');
+var jshint = require('gulp-jshint');
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
+var insert = require('gulp-insert');
+var sourcemaps = require('gulp-sourcemaps');
+var autoprefixer = require('gulp-autoprefixer');
+notify = require('gulp-notify');
+var file = require('gulp-file');
+var livereload = require('gulp-livereload');
+var download = require('gulp-download-stream');
+var browserSync = require('browser-sync').create();
+//=================================================//
 
- // browser-sync watched files
- // automatically reloads the page when files changed
- var browserSyncWatchFiles = [
-   './css/*.min.css',
-   './js/*.min.js',
-   './*.php'
- ];
-
- // browser-sync options
- // see: https://www.browsersync.io/docs/options/
- var browserSyncOptions = {
-   proxy: "hbsnj.test",
-   notify: true
- };
-
-// Load plugins
-var gulp = require('gulp'),
-  sass = require('gulp-sass'),
-  autoprefixer = require('gulp-autoprefixer'),
-  sourcemaps = require('gulp-sourcemaps'),
-  cssnano = require('gulp-cssnano'),
-  uglify = require('gulp-uglify'),
-  imagemin = require('gulp-imagemin'),
-  copy = require('gulp-contrib-copy'),
-  rename = require('gulp-rename'),
-  concat = require('gulp-concat'),
-  notify = require('gulp-notify'),
-  cache = require('gulp-cache'),
-  postcss = require('gulp-postcss'),
-  browserSync = require('browser-sync').create(),
-  del = require('del');
-
-var config = {
-  sassPath: './assets',
-};
-
-
-
-
-// Styles
-// gulp.task('styles', function() {
-//   return sass('assets/sass/style.scss', { style: 'expanded' })
-//   	.pipe(sourcemaps.init(''))
-//     .pipe(autoprefixer('last 2 version'))
-//     .pipe(sourcemaps.write(''))
-//     .pipe(gulp.dest(''))
-//     .pipe(rename({ suffix: '.min' }))
-//     .pipe(cssnano())
-//     .pipe(gulp.dest(''))
-//     .pipe(notify({ message: 'Styles task complete' }));
-// });
+gulp.task('browser-sync', function() {
+    browserSync.init({
+        proxy: "getbeansio.local",
+		port: 8000,
+    });
+});
 
 // Styles
 gulp.task('styles', function() {
-  return gulp.src('./assets/sass/**/*.scss')
+  return gulp.src('./assets/sass/style.scss')
   	.pipe(sourcemaps.init(''))
 	.pipe(sass().on('error', sass.logError))
     .pipe(autoprefixer('last 2 version'))
     .pipe(sourcemaps.write(''))
     .pipe(gulp.dest(''))
 	.pipe(browserSync.stream())
-    // .pipe(rename({ suffix: '.min' }))
-    // .pipe(cssnano())
-    // .pipe(gulp.dest(''))
     .pipe(notify({ message: 'Styles task complete' }));
 });
 
 // Scripts
 gulp.task('scripts', function() {
-  return gulp.src(['assets/js/custom.js'])
-    .pipe(concat('main.js'))
-    .pipe(gulp.dest('assets/js/'))
-    .pipe(rename({ suffix: '.min' }))
-    .pipe(uglify())
-    .pipe(gulp.dest('assets/js/'))
-	.pipe(browserSync.stream())
-    .pipe(notify({ message: 'Scripts task complete' }));
+  gulp.src('assets/js/*.js')
+  .pipe(concat('app.js'))
+  // .pipe(uglify())
+  .pipe(gulp.dest('assets'))
+  .pipe(browserSync.stream())
+  .pipe(notify({ message: 'Scripts task complete' }));
 });
 
-// Images
-// gulp.task('images', function() {
-//   return gulp.src('src/images/**/*')
-//     .pipe(cache(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true })))
-//     .pipe(gulp.dest('dist/images'))
-//     .pipe(notify({ message: 'Images task complete' }));
-// });
 
-// Clean
-// gulp.task('clean', function() {
-//   return del(['dist/styles', 'dist/scripts', 'dist/images']);
-// });
-
-
-
-// Run:
-// gulp browser-sync
-// Starts browser-sync task for starting the server.
-gulp.task('browser-sync', function() {
-    browserSync.init(browserSyncWatchFiles, browserSyncOptions);
-});
-
-// Run:
-// gulp watch-bs
-// Starts watcher with browser-sync. Browser-sync reloads page automatically on your browser
-gulp.task('watch-bs', ['browser-sync', 'scripts', 'styles', 'watch',], function () { });
-
-
-// Default task
-gulp.task('default', function() {
-  gulp.start('styles', 'scripts', 'watch');
-});
-
-// Watch
 gulp.task('watch', function() {
 
-  // Watch .scss files
-  gulp.watch('assets/sass/**/*.scss', ['styles']);
+  gulp.watch('assets/sass/**/**', [ 'styles' ])
+  gulp.watch('assets/js/*', ['scripts'])
 
-  // Watch .js files
-  gulp.watch('assets/js/**/*.js', ['scripts']);
-
-  // Watch image files
-  gulp.watch('src/images/**/*', ['images']);
-
-  // Watch any files in dist/, reload on change
-  // gulp.watch(['dist/**']).on('change', livereload.changed);
 
 });
+
+
+// JS Hint
+gulp.task('hint', function() {
+  return gulp.src('js/*.js')
+  .pipe(jshint())
+  .pipe(jshint.reporter('jshint-stylish'))
+});
+
+gulp.task('default', ['styles', 'scripts', 'browser-sync', 'watch']);
